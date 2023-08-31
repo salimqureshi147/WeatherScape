@@ -1,0 +1,10 @@
+export const Primary = '#48319D';
+export const SecondaryYellow = '#EAAE23';
+export const icon_gray = '#C2C9D1';
+export const Black = '#313131';
+export const splash_bac = '#313745';
+export const light_gray = '#E1E4E8';
+export const Secondary = '#C427FB';
+export const WHITE = '#fff';
+export const inputBack = '#F0F2F3';
+export const statusBarClr = 'rgb(242,239,244)';
