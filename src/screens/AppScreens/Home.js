@@ -5,8 +5,9 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
+  PermissionsAndroid,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Wrapper from '../../components/myWrapper/Wrapper';
 import CustomHeader from '../../components/CustomHeader';
 import CustomText from '../../components/CustomText';
@@ -20,9 +21,67 @@ import {
   WHITE,
 } from '../../shared/theme';
 import {RF} from '../../shared/theme/Responsive';
-import {cloud, sun, wind} from '../../assets';
+import {cloud, cloudyMoon, sun, wind} from '../../assets';
 import {Data} from '../../flatlistData/Data';
+import Geolocation from 'react-native-geolocation-service';
+import {setWeatherData, store} from '../../shared/redux';
+import {useSelector} from 'react-redux';
+import moment from 'moment-timezone';
+import {momentHourOnly} from '../../utils/functions';
 const Home = ({navigation}) => {
+  const {weatherData} = useSelector(state => state.root.user);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  useEffect(() => {
+    fetchDataFromApi();
+    requestLocationPermission();
+  }, []);
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Permission granted, get current position
+        Geolocation.getCurrentPosition(
+          position => {
+            setLatitude(position.coords.latitude);
+            setLongitude(position.coords.longitude);
+            console.log('my location', latitude);
+          },
+          error => {
+            console.error('Error getting location:', error);
+          },
+          {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+        );
+      } else {
+        console.log('Location permission denied');
+      }
+    } catch (error) {
+      console.error('Error requesting location permission:', error);
+    }
+  };
+  const openWeatherKey = `5cc03c2fee95ac3c8531f262aefdeed7`;
+  const fetchDataFromApi = async () => {
+    // console.log(lat, 'latttttttttttttttttttttttttt');
+    // console.log(long, 'longgggggggggggggggggggggg');
+    if (latitude && longitude) {
+      await fetch(
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=metric&appid=${openWeatherKey}`,
+      )
+        .then(res => res.json())
+        .then(data => {
+          // setIsLoading(true);
+          // setWeather(data);
+          store.dispatch(setWeatherData(data));
+          console.log(weatherData.current.daily, 'wwwwwwwwwwwwwwwwwww');
+        });
+    }
+  };
+
+  // const weatherDataLength = Object.keys(weatherData.hourly).length;
+  // console.log('Length of weatherData:', weatherData.daily[0]);
+
   const [selectedButton, setSelectedButton] = useState('Today');
   const Cloud_Inner = ({icon, name, des, mLeft}) => {
     return (
@@ -46,6 +105,8 @@ const Home = ({navigation}) => {
     );
   };
   const renderItem = ({item}) => {
+    // const format = moment(item.dt * 1000).format('ddd');
+    console.log(item, 'wekkly');
     return (
       <View
         style={{
@@ -54,10 +115,28 @@ const Home = ({navigation}) => {
           height: RF(70),
           marginRight: RF(15),
         }}>
-        <CustomText title={item.time} regular weight={'500'} size={RF(14)} />
-        <Image style={{height: RF(18), width: RF(18)}} source={item.img} />
+        <CustomText
+          title={
+            selectedButton == 'Weekly'
+              ? moment(item.dt * 1000).format('ddd')
+              : momentHourOnly(item.dt)
+          }
+          regular
+          weight={'500'}
+          size={RF(14)}
+        />
+        <Image style={{height: RF(18), width: RF(18)}} source={cloudyMoon} />
         <View style={{flexDirection: 'row'}}>
-          <CustomText title={item.deg} regular weight={'500'} size={RF(14)} />
+          <CustomText
+            title={
+              selectedButton == 'Weekly'
+                ? Math.floor(item.temp.max)
+                : Math.floor(item.temp)
+            }
+            regular
+            weight={'500'}
+            size={RF(14)}
+          />
           <Text
             style={{
               bottom: 3,
@@ -86,7 +165,12 @@ const Home = ({navigation}) => {
           justifyContent: 'space-between',
         }}>
         <View style={{flexDirection: 'row'}}>
-          <CustomText title={'20'} size={48} weight={'600'} semiBold />
+          <CustomText
+            title={Math.floor(weatherData.current.temp)}
+            size={36}
+            weight={'600'}
+            semiBold
+          />
           <CustomText title={'o'} size={28} weight={'600'} semiBold />
         </View>
         <View style={{borderLeftWidth: 3, borderColor: light_gray}}></View>
@@ -99,7 +183,11 @@ const Home = ({navigation}) => {
       <View style={styles.cloudCard}>
         <Image style={styles.cloudImage} source={cloud} />
         <View style={[styles.Container]}>
-          <Cloud_Inner icon={wind} name={'Wind'} des={'4km/h'} />
+          <Cloud_Inner
+            icon={wind}
+            name={'Wind'}
+            des={Math.floor(weatherData.current.wind_speed) + ' ' + `${'km/h'}`}
+          />
           <Cloud_Inner icon={sun} name={'Sun'} des={'32%'} />
         </View>
       </View>
@@ -161,7 +249,12 @@ const Home = ({navigation}) => {
       </View>
       <View style={{marginTop: RF(20), paddingBottom: 100}}>
         <FlatList
-          data={Data}
+          data={
+            selectedButton == 'Weekly'
+              ? weatherData.daily
+              : weatherData.hourly.slice(0, 23)
+          }
+          // data={weatherData.hourly}
           renderItem={renderItem}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
