@@ -50,25 +50,33 @@ const placesData = [
     id: 0,
     place: 'London',
     imge: 'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8TG9uZG9ufGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60',
-    deg: '-12.7 C',
+    deg: '-12.9 C',
+    latitude:51.5072,
+    longitude: 0.1276
   },
   {
     id: 1,
     place: 'USA',
     imge: 'https://images.unsplash.com/photo-1513026705753-bc3fffca8bf4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fExvbmRvbnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60',
     deg: '-12.7 C',
+    latitude:37.0902,
+    longitude: 95.7129
   },
   {
     id: 2,
-    place: 'London',
+    place: 'Canada',
     imge: 'https://images.unsplash.com/photo-1520967824495-b529aeba26df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fExvbmRvbnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60',
     deg: '-12.7 C',
+    latitude:56.1304,
+    longitude: 106.3468
   },
   {
     id: 3,
     place: 'Pakistan',
     imge: 'https://images.unsplash.com/photo-1550586678-f7225f03c44b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8UGFraXN0YW58ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
     deg: '-12.7 C',
+    latitude:30.3753,
+    longitude: 69.3451
   },
 ];
 const placesWeather = [

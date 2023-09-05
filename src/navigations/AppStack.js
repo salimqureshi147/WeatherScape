@@ -1,7 +1,7 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import React,{useEffect} from 'react';
 import {BottomFabBar} from 'rn-wave-bottom-bar';
 import Home from '../screens/AppScreens/Home';
 import CustomTabs from '../components/customTabs';
@@ -14,17 +14,49 @@ import OnBoarding1 from '../screens/AppScreens/OnBoarding1';
 import NewsBlogDetail from '../screens/AppScreens/NewsBlogDetail';
 import PlacesDetail from '../screens/PlacesDetail';
 import {Primary} from '../shared/theme';
+
+
+import { Keyboard } from 'react-native';
+
 import Notification from '../screens/Notification';
+import { useSelector } from 'react-redux';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-function MyTabs() {
+function MyTabs({navigation}) {
+  const {isKeyboardOpen}=useSelector(state=>state.root.user)
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        navigation.setOptions({
+          tabBarStyle: { display: 'none' },
+        });
+      }
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        navigation.setOptions({
+          tabBarStyle: null,
+        });
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [navigation]);
   return (
-    <Tab.Navigator
+    <Tab.Navigator 
       screenOptions={{
+       tabBarHideOnKeyboard:true,
         tabBarActiveTintColor: Primary,
         tabBarActiveBackgroundColor: '#fff',
         tabBarInactiveBackgroundColor: 'red',
         headerShown: false,
+        tabBarStyle: !isKeyboardOpen ? { display: 'none' } : {},
       }}
       tabBar={props => (
         <BottomFabBar
@@ -93,12 +125,13 @@ function MyTabs() {
 const AppStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="MyTabs" component={MyTabs} />
       <Stack.Screen name="Splash" component={Splash} />
       <Stack.Screen name="OnBoarding1" component={OnBoarding1} />
       <Stack.Screen name="NewsBlogDetail" component={NewsBlogDetail} />
       <Stack.Screen name="PlacesDetail" component={PlacesDetail} />
       <Stack.Screen name="Notification" component={Notification} />
-      <Stack.Screen name="MyTabs" component={MyTabs} />
+      
     </Stack.Navigator>
   );
 };

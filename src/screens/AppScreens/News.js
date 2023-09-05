@@ -8,27 +8,35 @@ import {
   View,
   ScrollView,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import Wrapper from '../../components/myWrapper/Wrapper';
 import CustomText from '../../components/CustomText';
-import {
-  HP,
-  RF,
-  SCREEN_HEIGHT,
-  SCREEN_WIDTH,
-} from '../../shared/theme/Responsive';
-import {
-  Black,
-  Primary,
-  Secondary,
-  statusBarClr,
-  WHITE,
-} from '../../shared/theme';
+import {RF} from '../../shared/theme/Responsive';
+import {Black, Primary, statusBarClr, WHITE} from '../../shared/theme';
 import {NewsData} from '../../flatlistData/Data';
 import {arrow} from '../../assets';
+import axios from 'axios';
 
 const News = ({navigation}) => {
-  console.log('navigation', navigation);
+  const Axois = () => {
+    const city = 'New York'; // Replace with the city you want weather data for
+
+    axios
+      .get(
+        ` https://api.thenewsapi.com/v1/news/all?api_token=Pe2537uBtuy8RkBhmCO1GhLWmSjS9yePpy3ZdSvV&search=usd`,
+      )
+      .then(response => {
+        // Handle the weather data in the response
+        console.log(response.data);
+      })
+      .catch(error => {
+        // Handle errors
+        console.error(error);
+      });
+  };
+  useEffect(() => {
+    Axois();
+  }, []);
   const renderNews = ({item, index}) => {
     return (
       <View style={{marginVertical: RF(10)}}>
@@ -99,13 +107,13 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   card_insideContainer: {
-    height: RF(155),
     width: '100%',
     backgroundColor: WHITE,
     borderBottomLeftRadius: RF(18),
     borderBottomRightRadius: RF(18),
     elevation: 2,
-    padding: RF(20),
+    padding: 10,
+    paddingLeft: 20,
   },
   detail_Button: {
     height: RF(33),

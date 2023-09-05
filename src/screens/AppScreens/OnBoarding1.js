@@ -10,6 +10,7 @@ import {RF, SCREEN_HEIGHT, SCREEN_WIDTH} from '../../shared/theme/Responsive';
 import {arrow, onBorad1, onBorad2} from '../../assets';
 import CustomText from '../../components/CustomText';
 import {light_gray, Primary, Secondary} from '../../shared/theme';
+import {useSelector} from 'react-redux';
 
 const OnBoarding1 = ({navigation}) => {
   const [color, setColor] = useState(Secondary);
@@ -39,6 +40,7 @@ const OnBoarding1 = ({navigation}) => {
           color={change ? '#fff' : '#000'}
         />
       </View>
+
       <View style={{position: 'absolute', bottom: RF(40), alignSelf: 'center'}}>
         <CustomText
           title={
@@ -109,5 +111,11 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     position: 'absolute',
     backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  imageStyle: {
+    height: RF(350),
+    width: RF(315),
+    alignSelf: 'center',
+    marginTop: RF(80),
   },
 });

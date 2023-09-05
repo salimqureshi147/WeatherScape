@@ -68,7 +68,7 @@ const Settings = ({navigation}) => {
           <TouchableOpacity
             style={[styles.switch, {backgroundColor: item.button1Color}]}
             onPress={() => {
-              handleButton1Press(item.id); // Call the Toggle function with the index
+              handleButton1Press(item.id, item.switch1); // Call the Toggle function with the index
             }}>
             <View style={{flexDirection: 'row'}}>
               <CustomText
