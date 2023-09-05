@@ -9,7 +9,7 @@ import {
 import React from 'react';
 import CustomText from './CustomText';
 import {notify} from '../assets';
-import {Primary} from '../shared/theme';
+import {Primary, statusBarClr} from '../shared/theme';
 import {RF} from '../shared/theme/Responsive';
 
 const CustomHeader = ({
@@ -29,8 +29,8 @@ const CustomHeader = ({
         marginTop: istop ? 10 : 0,
         height: RF(130),
         padding: RF(10),
+        backgroundColor: statusBarClr,
         alignItems: 'center',
-        backgroundColor: 'rgb(242,239,244)',
       }}>
       <View style={{marginTop: RF(40)}}>
         {head ? null : (

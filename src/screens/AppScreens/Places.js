@@ -60,7 +60,7 @@ const Places = ({navigation}) => {
     <Wrapper
       padZero
       noPadding
-      statusBarBagColor={'rgb(242,239,244)'}
+      // statusBarBagColor={'rgb(242,239,244)'}
       translucent>
       <CustomHeader
         Clr={'#000'}

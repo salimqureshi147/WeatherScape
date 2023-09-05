@@ -81,7 +81,7 @@ const News = ({navigation}) => {
     );
   };
   return (
-    <Wrapper paddingTop={RF(50)} bgClr={statusBarClr}>
+    <Wrapper paddingTop={RF(50)} bgClr={WHITE}>
       <CustomText title={'News Blog'} semiBold size={RF(18)} margin={RF(10)} />
       <View style={{paddingBottom: 100}}>
         <FlatList

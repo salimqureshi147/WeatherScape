@@ -21,8 +21,28 @@ const temp = require('../assets/appIcons/temp.png');
 const windSpeed = require('../assets/appIcons/windSpeed.png');
 const timming = require('../assets/appIcons/timming.png');
 const notifyIcon = require('../assets/appIcons/notifyIcon.png');
+const clearSky = require('../assets/appIcons/Clouds/clearSky.png');
+const fewClouds = require('../assets/appIcons/Clouds/fewClouds.png');
+const rain = require('../assets/appIcons/Clouds/rain.png');
+const scatteredClouds = require('../assets/appIcons/Clouds/scatteredClouds.png');
+const snow = require('../assets/appIcons/Clouds/snow.png');
+const thunderStorm = require('../assets/appIcons/Clouds/thunderStorm.png');
+const CloudySkyImage = require('../assets/appIcons/Clouds/CloudySkyImage.png');
+const SunnySkyImage = require('../assets/appIcons/Clouds/SunnySkyImage.png');
+const ThunderStromSkyImage = require('../assets/appIcons/Clouds/ThunderStromSkyImage.png');
+const SmokySkyImage = require('../assets/appIcons/Clouds/SmokySkyImage.png');
 
 export {
+  thunderStorm,
+  SmokySkyImage,
+  ThunderStromSkyImage,
+  SunnySkyImage,
+  CloudySkyImage,
+  rain,
+  scatteredClouds,
+  snow,
+  fewClouds,
+  clearSky,
   temp,
   windSpeed,
   timming,

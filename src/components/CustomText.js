@@ -16,10 +16,12 @@ const CustomText = ({
   mLeft,
   margin,
   width,
+  numLines,
 }) => {
   return (
     <View>
       <Text
+        numberOfLines={numLines}
         style={{
           marginTop: top ? top : 0,
           marginLeft: mLeft ? mLeft : 0,
