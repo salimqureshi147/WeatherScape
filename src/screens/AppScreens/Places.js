@@ -19,30 +19,30 @@ import {RF} from '../../shared/theme/Responsive';
 import {find, map} from '../../assets';
 import {inputBack} from '../../shared/theme';
 import CustomText from '../../components/CustomText';
-import { setIsKeyboardOpen, store } from '../../shared/redux';
+import {  setKeyboardOpen, store } from '../../shared/redux';
 import { useSelector } from 'react-redux';
 
 const Places =  ({navigation}) => {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const {isKeyboardOpen}=useSelector(state=>state.root.user)
+  const {keyBoardOpen}=useSelector(state=>state.root.user)
   const filteredData = placesData.filter(item =>
     item.place.toLowerCase().includes(searchQuery.toLowerCase()),
   ); 
 
   useEffect(() => {
     const  showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-      store.dispatch(setIsKeyboardOpen(false))
+     store.dispatch(setKeyboardOpen(false))
     });
     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-      store.dispatch(setIsKeyboardOpen(true))
+      store.dispatch(setKeyboardOpen(true))
     });
 
    return () => {
       showSubscription.remove();
       hideSubscription.remove();
-      // console.log(isKeyboardOpen)
+      
     };
-  }, [isKeyboardOpen]);
+  }, [keyBoardOpen]);
   
 
 
@@ -83,7 +83,7 @@ const Places =  ({navigation}) => {
     <Wrapper
       padZero
       noPadding
-      statusBarBagColor={'rgb(242,239,244)'}
+      // statusBarBagColor={'rgb(242,239,244)'}
       translucent>
       <CustomHeader
         Clr={'#000'}

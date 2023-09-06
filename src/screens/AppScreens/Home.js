@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   FlatList,
   PermissionsAndroid,
+  ImageBackground,
+  ScrollView,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Wrapper from '../../components/myWrapper/Wrapper';
@@ -21,17 +23,31 @@ import {
   WHITE,
 } from '../../shared/theme';
 import {RF} from '../../shared/theme/Responsive';
-import {cloud, cloudyMoon, sun, wind} from '../../assets';
+import {
+  clearSky,
+  cloud,
+  cloudyMoon,
+  CloudySkyImage,
+  fewClouds,
+  rain,
+  scatteredClouds,
+  snow,
+  sun,
+  SunnySkyImage,
+  thunderStorm,
+  wind,
+} from '../../assets';
 import {Data} from '../../flatlistData/Data';
 import Geolocation from 'react-native-geolocation-service';
-import {setWeatherData, store} from '../../shared/redux';
+import {setKeyboardOpen, setWeatherData, store} from '../../shared/redux';
 import {useSelector} from 'react-redux';
 import moment from 'moment-timezone';
 import {momentHourOnly} from '../../utils/functions';
 const Home = ({navigation}) => {
-  const {weatherData} = useSelector(state => state.root.user);
+  const {weatherData, keyBoardOpen} = useSelector(state => state.root.user);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
+
   useEffect(() => {
     fetchDataFromApi();
     requestLocationPermission();
@@ -75,16 +91,15 @@ const Home = ({navigation}) => {
           // setWeather(data);
      
           store.dispatch(setWeatherData(data));
-
+          // console.log(weatherData.current, 'current weather');
         });
     }
   };
 
-  // const weatherDataLength = Object.keys(weatherData.hourly).length;
-  // console.log('Length of weatherData:', weatherData.daily[0]);
-
+  const weatherCondition = weatherData?.current?.weather[0];
+  // console.log(weatherData, 'yessssssssssssssssss');
   const [selectedButton, setSelectedButton] = useState('Today');
-  const Cloud_Inner = ({icon, name, des, mLeft}) => {
+  const Cloud_Inner = ({icon, name, des, mLeft, numLines}) => {
     return (
       <View
         style={{
@@ -97,10 +112,10 @@ const Home = ({navigation}) => {
             source={icon}
             resizeMode={'contain'}
           />
-          <CustomText title={name} regular size={RF(16)} weight={'500'} />
+          <CustomText title={name} regular size={RF(14)} weight={'500'} />
         </View>
         <View style={[styles.des_Cont]}>
-          <CustomText title={des} regular size={RF(16)} weight={'500'} />
+          <CustomText title={des} regular size={RF(14)} weight={'500'} />
         </View>
       </View>
     );
@@ -153,6 +168,14 @@ const Home = ({navigation}) => {
 
   return (
     <Wrapper bgClr={statusBarClr}>
+      {/* <ImageBackground
+        style={{flex: 1, padding: RF(10)}}
+        source={
+          weatherCondition.description == 'few clouds'
+            ? CloudySkyImage
+            : SunnySkyImage
+        }
+        resizeMode={'cover'}> */}
       <CustomHeader
         title={'John Duo!'}
         navigateNotification={'Notification'}
@@ -176,22 +199,57 @@ const Home = ({navigation}) => {
         </View>
         <View style={{borderLeftWidth: 3, borderColor: light_gray}}></View>
         <View>
-          <CustomText title={'Cloudy'} size={26} weight={'600'} semiBold />
-          <CustomText title={'Tuesday,21 October'} weight={'400'} />
+          <CustomText
+            title={weatherCondition.main}
+            size={26}
+            weight={'600'}
+            semiBold
+          />
+          <CustomText
+            title={moment(weatherData.current.dt * 1000).format(
+              'dddd' + ', ' + 'DD' + ' ' + 'MMMM',
+            )}
+            weight={'400'}
+          />
         </View>
       </View>
 
       <View style={styles.cloudCard}>
-        <Image style={styles.cloudImage} source={cloud} />
+        <Image
+          style={styles.cloudImage}
+          source={
+            weatherCondition.main == 'Clear'
+              ? clearSky
+              : fewClouds || weatherCondition.main == 'Rain'
+              ? rain
+              : snow || weatherCondition.main == 'Thunderstorm'
+              ? thunderStorm
+              : clearSky
+          }
+          resizeMode={'contain'}
+        />
         <View style={[styles.Container]}>
           <Cloud_Inner
             icon={wind}
             name={'Wind'}
             des={Math.floor(weatherData.current.wind_speed) + ' ' + `${'km/h'}`}
           />
-          <Cloud_Inner icon={sun} name={'Sun'} des={'32%'} />
+          <Cloud_Inner
+            icon={
+              weatherCondition.main == 'Clear'
+                ? clearSky
+                : fewClouds || weatherCondition.main == 'Rain'
+                ? rain
+                : snow || weatherCondition.main == 'Thunderstorm'
+                ? thunderStorm
+                : clearSky
+            }
+            name={weatherCondition.description}
+            des={` ${weatherData.current.clouds}%`}
+          />
         </View>
       </View>
+
       <View style={{width: '100%', flexDirection: 'row', marginTop: RF(30)}}>
         <View
           style={[
@@ -298,6 +356,7 @@ const Home = ({navigation}) => {
           />
         </View>
       </View>
+      {/* </ImageBackground> */}
     </Wrapper>
   );
 };
@@ -327,18 +386,19 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '50%',
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingRight: RF(10),
   },
   des_Cont: {
     borderLeftWidth: 1,
     borderColor: icon_gray,
     width: '50%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingLeft: RF(10),
   },
   Container: {
     justifyContent: 'space-between',
     height: RF(70),
-    width: RF(170),
+    width: '100%',
     marginTop: RF(15),
   },
   days_pattern: {

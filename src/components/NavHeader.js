@@ -7,8 +7,7 @@ import {Black} from '../shared/theme';
 
 const NavHeader = ({navigation, title}) => {
   return (
-    <TouchableOpacity
-      onPress={() => navigation.goBack()}
+    <View
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -16,8 +15,13 @@ const NavHeader = ({navigation, title}) => {
         backgroundColor: 'rgb(242,239,244)',
         padding: RF(20),
       }}>
-      <View
-        style={{flexDirection: 'row', alignItems: 'center', marginTop: RF(40)}}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginTop: RF(40),
+        }}>
         <Image
           source={back}
           style={{
@@ -29,8 +33,8 @@ const NavHeader = ({navigation, title}) => {
           resizeMode={'contain'}
         />
         <CustomText title={title} size={RF(18)} weight={'500'} medium />
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 };
 

@@ -9,23 +9,34 @@ import {Black, icon_gray, Primary} from '../shared/theme';
 import {placesWeather} from '../flatlistData/Data';
 import moment from 'moment-timezone';
 import {momentHourOnly} from '../../utils/functions';
+import Loader from '../components/Loader';
 const PlacesDetail = ({route, navigation}) => {
-  
+  const [isLoading,setIsloading]=useState(true)
   const [LocationData, setLocationData] = useState();
   useEffect(() => {
 fetchDataFromApi();
   }, []);
   const openWeatherKey = `5cc03c2fee95ac3c8531f262aefdeed7`;
   const fetchDataFromApi = async () => {
-    await fetch(
-      `https://api.openweathermap.org/data/2.5/onecall?lat=${items.latitude}&lon=${items.longitude}&units=metric&appid=${openWeatherKey}`,
-    )
-      .then(res => res.json())
-      .then(data => {
-        // console.log(data.current.dt)
-        setLocationData(data);
-        //  console.log(data.current, 'dfdfsgfr');
-      });
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${items.latitude}&lon=${items.longitude}&units=metric&appid=${openWeatherKey}`,
+      );
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+    
+      setLocationData(data);
+    } catch (error) {
+      // console.error('An error occurred while fetching data:', error);
+      // You can handle the error here, for example, show an error message to the user
+    } finally {
+      setIsloading(false); // Set loading state to false whether it succeeds or fails
+      
+    }
   };
  
   const {items} = route.params;
@@ -48,6 +59,12 @@ fetchDataFromApi();
   };
 
   //  console.log(items.latitude, 's iiiii');
+
+  if (isLoading) {
+    return (
+      <Loader />
+    );
+  }
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <HeaderBacground

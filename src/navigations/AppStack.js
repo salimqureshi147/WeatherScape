@@ -23,7 +23,7 @@ import { useSelector } from 'react-redux';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 function MyTabs({navigation}) {
-  const {isKeyboardOpen}=useSelector(state=>state.root.user)
+  const {keyBoardOpen}=useSelector(state=>state.root.user)
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -56,7 +56,7 @@ function MyTabs({navigation}) {
         tabBarActiveBackgroundColor: '#fff',
         tabBarInactiveBackgroundColor: 'red',
         headerShown: false,
-        tabBarStyle: !isKeyboardOpen ? { display: 'none' } : {},
+        tabBarStyle: !keyBoardOpen ? { display: 'none' } : {},
       }}
       tabBar={props => (
         <BottomFabBar
