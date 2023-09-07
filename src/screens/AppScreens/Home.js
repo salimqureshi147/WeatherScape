@@ -46,11 +46,12 @@ import {useSelector} from 'react-redux';
 import moment from 'moment-timezone';
 import {momentHourOnly} from '../../utils/functions';
 const Home = ({navigation}) => {
-  const {tempValues} = useSelector(state => state.root.temp);
+  const {speed, degreeValue} = useSelector(state => state.root.temp);
   const {weatherData, keyBoardOpen} = useSelector(state => state.root.user);
   const [latitude, setLatitude] = useState('31.5204');
   const [longitude, setLongitude] = useState('74.3587');
   const [loading, setLoading] = useState(true);
+  console.log(speed, 'values');
   useEffect(() => {
     fetchDataFromApi();
     requestLocationPermission();
@@ -80,6 +81,7 @@ const Home = ({navigation}) => {
       console.error('Error requesting location permission:', error);
     }
   };
+
   // const openWeatherKey = `5499633cb715f069b502abf87c127f2e`;
 
   const fetchDataFromApi = async () => {
@@ -108,10 +110,7 @@ const Home = ({navigation}) => {
     }
     weatherCondition;
   };
-
   const weatherCondition = weatherData?.current?.weather[0];
-
-  console.log(weatherCondition, 'weather');
   const [selectedButton, setSelectedButton] = useState('Today');
   const Cloud_Inner = ({icon, name, des, mLeft, numLines}) => {
     return (
@@ -190,14 +189,20 @@ const Home = ({navigation}) => {
   };
   if (loading) {
     return (
-      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.2)',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
         <ActivityIndicator size={'large'} color={Primary} />
       </View>
     );
   }
   const speedConvert = weatherData?.current?.wind_speed;
   const multiplyWithSpeed = 0.621371 * speedConvert;
-  // console.log(multiplyWithSpeed, 'mph answer');
+  console.log(degreeValue, 'mph answer');
   return (
     <Wrapper bgClr={statusBarClr}>
       {/* <ImageBackground
@@ -265,11 +270,11 @@ const Home = ({navigation}) => {
             icon={wind}
             name={'Wind'}
             des={
-              tempValues === 'KM'
+              speed === 'KM'
                 ? weatherData?.current?.wind_speed?.toFixed(2) +
                   ' ' +
-                  `${tempValues}`
-                : multiplyWithSpeed.toFixed(2) + ' ' + `${tempValues}`
+                  `${speed}`
+                : multiplyWithSpeed.toFixed(2) + ' ' + `${speed}`
             }
           />
           <Cloud_Inner
@@ -354,8 +359,8 @@ const Home = ({navigation}) => {
             selectedButton == 'Weekly'
               ? weatherData.daily
               : selectedButton == 'Tomorrow'
-              ? weatherData.hourly.slice(24, 48)
-              : weatherData.hourly.slice(0, 24)
+              ? weatherData?.hourly?.slice(24, 48)
+              : weatherData?.hourly?.slice(0, 24)
           }
           // data={weatherData.hourly}
           renderItem={renderItem}

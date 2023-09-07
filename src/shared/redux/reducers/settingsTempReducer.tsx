@@ -1,8 +1,9 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState: any = {
-  tempValues: '',
-  speed: '',
+  tempValues: 'C',
+  speed: 'KM',
+  degreeValue: '',
 };
 
 export const settingsTempReducer = createSlice({
@@ -13,11 +14,15 @@ export const settingsTempReducer = createSlice({
       state.tempValues = action.payload;
     },
     setSpeed: (state, action) => {
-      state.tempValues = action.payload;
+      state.speed = action.payload;
+    },
+    setDegreeValue: (state, action) => {
+      state.degree = action.payload;
     },
   },
 });
 
-export const {setTempValues, setSpeed} = settingsTempReducer.actions;
+export const {setTempValues, setSpeed, setDegreeValue} =
+  settingsTempReducer.actions;
 
 export default settingsTempReducer.reducer;

@@ -23,6 +23,7 @@ import {setKeyboardOpen, store} from '../../shared/redux';
 import {useSelector} from 'react-redux';
 
 const Places = ({navigation}) => {
+  const {speed, tempValues} = useSelector(state => state.root.temp);
   const [searchQuery, setSearchQuery] = React.useState('');
   const {keyBoardOpen} = useSelector(state => state.root.user);
   const filteredData = placesData.filter(item =>

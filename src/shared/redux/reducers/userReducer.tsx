@@ -3,7 +3,7 @@ import {Primary} from '../../theme';
 
 const initialState: any = {
   weatherData: [],
-  keyBoardOpen: false,
+  keyBoardOpen: true,
   color: Primary,
 };
 

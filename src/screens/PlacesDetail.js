@@ -10,10 +10,17 @@ import {placesWeather} from '../flatlistData/Data';
 import moment from 'moment-timezone';
 import {momentHourOnly} from '../../utils/functions';
 import Loader from '../components/Loader';
+import {useSelector} from 'react-redux';
+import {setDegreeValue} from '../shared/redux/reducers/settingsTempReducer';
+import {store} from '../shared/redux';
+
 const PlacesDetail = ({route, navigation}) => {
+  const {tempValues, speed} = useSelector(state => state.root.temp);
+
   const [isLoading, setIsloading] = useState(true);
   const [LocationData, setLocationData] = useState();
   useEffect(() => {
+    store.dispatch(setDegreeValue(LocationData?.current?.temp));
     fetchDataFromApi();
   }, []);
   const openWeatherKey = `5cc03c2fee95ac3c8531f262aefdeed7`;
@@ -37,7 +44,11 @@ const PlacesDetail = ({route, navigation}) => {
       setIsloading(false); // Set loading state to false whether it succeeds or fails
     }
   };
+  const speedConvert = LocationData?.current?.wind_speed;
+  const multiplyWithSpeed = 0.621371 * speedConvert;
 
+  const degreeConvert = LocationData?.current?.temp;
+  const multiplyWithDegree = (degreeConvert * 9) / 5 + 32;
   const {items} = route.params;
   const Cloud_Inner = ({icon, name, des, right}) => {
     return (
@@ -94,7 +105,11 @@ const PlacesDetail = ({route, navigation}) => {
                   marginVertical: RF(10),
                 }}>
                 <CustomText
-                  title={LocationData?.current?.temp + ' ' + 'C'}
+                  title={
+                    tempValues === 'C'
+                      ? LocationData?.current?.temp + ' ' + `${tempValues}`
+                      : multiplyWithDegree.toFixed(2) + ' ' + `${tempValues}`
+                  }
                   size={RF(30)}
                   regular
                   weight={'700'}
@@ -131,7 +146,13 @@ const PlacesDetail = ({route, navigation}) => {
             <Cloud_Inner
               icon={wind}
               name={'Wind,'}
-              des={LocationData?.current?.wind_speed + ' ' + 'km/h'}
+              des={
+                speed === 'KM'
+                  ? LocationData?.current?.wind_speed?.toFixed(2) +
+                    ' ' +
+                    `${'km/h'}`
+                  : multiplyWithSpeed.toFixed(2) + ' ' + `${speed}`
+              }
               right={10}
             />
             <Cloud_Inner
@@ -167,7 +188,13 @@ const PlacesDetail = ({route, navigation}) => {
             size={RF(16)}
             regular></CustomText>
           <CustomText
-            title={LocationData?.current?.wind_speed + ' ' + 'Mph'}
+            title={
+              speed === 'KM'
+                ? LocationData?.current?.wind_speed?.toFixed(2) +
+                  ' ' +
+                  `${'km/h'}`
+                : multiplyWithSpeed.toFixed(2) + ' ' + `${speed}`
+            }
             weight={'400'}
             size={RF(16)}
             regular></CustomText>

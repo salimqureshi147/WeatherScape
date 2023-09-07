@@ -14,23 +14,20 @@ import {notify, temp, timming, windSpeed} from '../../assets';
 
 const Settings = ({navigation}) => {
   const {speed, tempValues} = useSelector(state => state.root.temp);
-
+  // console.log(speed, 'myspeed');
   const handleOptionChange = (selectedOption, action) => {
-    if (action === 'temp') {
-      selectedOption === 'C'
-        ? store.dispatch(setTempValues('C'))
-        : store.dispatch(setTempValues('F'));
-    } else if (action === 'speed') {
-      selectedOption === 'KM'
-        ? store.dispatch(setSpeed('KM'))
-        : store.dispatch(setSpeed('Mph'));
+    if (action === 'speed') {
+      store.dispatch(setSpeed(selectedOption));
+    } else if (action === 'temp') {
+      store.dispatch(setTempValues(selectedOption));
+    } else if (action === 'temp') {
+      if (selectedOption === 'C') {
+        store.dispatch(setTempValues('C'));
+      } else if (selectedOption === 'F') {
+        store.dispatch(setTempValues('F'));
+      }
     }
   };
-
-  useEffect(() => {
-    console.log('tempValues changed:', tempValues);
-  }, []);
-
   return (
     <Wrapper padZero noPadding translucent>
       <NavHeader navigation={navigation} title={'Settings'} />
