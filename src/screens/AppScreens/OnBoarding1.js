@@ -4,6 +4,7 @@ import {
   Image,
   TouchableOpacity,
   ImageBackground,
+  StatusBar,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {RF, SCREEN_HEIGHT, SCREEN_WIDTH} from '../../shared/theme/Responsive';
@@ -32,13 +33,15 @@ const OnBoarding1 = ({navigation}) => {
       resizeMode={change ? 'cover' : 'contain'}>
       {change ? <View style={styles.fade_View} /> : null}
       <View style={{width: '100%', alignItems: 'flex-end'}}>
-        <CustomText
-          title={'Skip'}
-          semiBold
-          weight={'600'}
-          size={RF(18)}
-          color={change ? '#fff' : '#000'}
-        />
+        <TouchableOpacity onPress={Toggle}>
+          <CustomText
+            title={'Skip'}
+            semiBold
+            weight={'600'}
+            size={RF(18)}
+            color={change ? '#fff' : '#000'}
+          />
+        </TouchableOpacity>
       </View>
 
       <View style={{position: 'absolute', bottom: RF(40), alignSelf: 'center'}}>

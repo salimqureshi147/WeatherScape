@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   PermissionsAndroid,
+  ActivityIndicator,
   ImageBackground,
   ScrollView,
 } from 'react-native';
@@ -29,6 +30,7 @@ import {
   cloudyMoon,
   CloudySkyImage,
   fewClouds,
+  haze,
   rain,
   scatteredClouds,
   snow,
@@ -44,10 +46,11 @@ import {useSelector} from 'react-redux';
 import moment from 'moment-timezone';
 import {momentHourOnly} from '../../utils/functions';
 const Home = ({navigation}) => {
+  const {tempValues} = useSelector(state => state.root.temp);
   const {weatherData, keyBoardOpen} = useSelector(state => state.root.user);
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-
+  const [latitude, setLatitude] = useState('31.5204');
+  const [longitude, setLongitude] = useState('74.3587');
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetchDataFromApi();
     requestLocationPermission();
@@ -63,7 +66,7 @@ const Home = ({navigation}) => {
           position => {
             setLatitude(position.coords.latitude);
             setLongitude(position.coords.longitude);
-            console.log('my location', latitude);
+            console.log('Current Location Success', latitude);
           },
           error => {
             console.error('Error getting location:', error);
@@ -77,26 +80,38 @@ const Home = ({navigation}) => {
       console.error('Error requesting location permission:', error);
     }
   };
-  const openWeatherKey = `5cc03c2fee95ac3c8531f262aefdeed7`;
+  // const openWeatherKey = `5499633cb715f069b502abf87c127f2e`;
+
   const fetchDataFromApi = async () => {
-    // console.log(lat, 'latttttttttttttttttttttttttt');
-    // console.log(long, 'longgggggggggggggggggggggg');
+    console.log('running');
+    setLoading(true);
+
     if (latitude && longitude) {
-      await fetch(
-        `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=metric&appid=${openWeatherKey}`,
-      )
-        .then(res => res.json())
-        .then(data => {
-          // setIsLoading(true);
-          // setWeather(data);
+      console.log('true', latitude);
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=metric&appid=5cc03c2fee95ac3c8531f262aefdeed7`,
+          // `https://api.openweathermap.org/data/3.0/onecall?lat=${31.5204}&lon=${74.3587}&appid=${openWeatherKey}`,
+        );
+        console.log(response, 'my response');
+        if (response.ok == true) {
+          const data = await response.json();
           store.dispatch(setWeatherData(data));
-          // console.log(weatherData.current, 'current weather');
-        });
+        } else {
+          console.error('API error:', response.status);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      } finally {
+        setLoading(false);
+      }
     }
+    weatherCondition;
   };
 
   const weatherCondition = weatherData?.current?.weather[0];
-  // console.log(weatherData, 'yessssssssssssssssss');
+
+  console.log(weatherCondition, 'weather');
   const [selectedButton, setSelectedButton] = useState('Today');
   const Cloud_Inner = ({icon, name, des, mLeft, numLines}) => {
     return (
@@ -114,14 +129,18 @@ const Home = ({navigation}) => {
           <CustomText title={name} regular size={RF(14)} weight={'500'} />
         </View>
         <View style={[styles.des_Cont]}>
-          <CustomText title={des} regular size={RF(14)} weight={'500'} />
+          <CustomText
+            title={des}
+            regular
+            size={RF(14)}
+            weight={'500'}
+            numLines={1}
+          />
         </View>
       </View>
     );
   };
   const renderItem = ({item}) => {
-    // const format = moment(item.dt * 1000).format('ddd');
-    // console.log(item, 'wekkly');
     return (
       <View
         style={{
@@ -140,7 +159,12 @@ const Home = ({navigation}) => {
           weight={'500'}
           size={RF(14)}
         />
-        <Image style={{height: RF(18), width: RF(18)}} source={cloudyMoon} />
+        <Image
+          style={{height: RF(18), width: RF(18)}}
+          source={{
+            uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`,
+          }}
+        />
         <View style={{flexDirection: 'row'}}>
           <CustomText
             title={
@@ -164,7 +188,16 @@ const Home = ({navigation}) => {
       </View>
     );
   };
-
+  if (loading) {
+    return (
+      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <ActivityIndicator size={'large'} color={Primary} />
+      </View>
+    );
+  }
+  const speedConvert = weatherData?.current?.wind_speed;
+  const multiplyWithSpeed = 0.621371 * speedConvert;
+  // console.log(multiplyWithSpeed, 'mph answer');
   return (
     <Wrapper bgClr={statusBarClr}>
       {/* <ImageBackground
@@ -189,7 +222,7 @@ const Home = ({navigation}) => {
         }}>
         <View style={{flexDirection: 'row'}}>
           <CustomText
-            title={Math.floor(weatherData.current.temp)}
+            title={Math.floor(weatherData?.current?.temp)}
             size={36}
             weight={'600'}
             semiBold
@@ -199,13 +232,13 @@ const Home = ({navigation}) => {
         <View style={{borderLeftWidth: 3, borderColor: light_gray}}></View>
         <View>
           <CustomText
-            title={weatherCondition.main}
+            title={weatherCondition?.main}
             size={26}
             weight={'600'}
             semiBold
           />
           <CustomText
-            title={moment(weatherData.current.dt * 1000).format(
+            title={moment(weatherData?.current?.dt * 1000).format(
               'dddd' + ', ' + 'DD' + ' ' + 'MMMM',
             )}
             weight={'400'}
@@ -217,13 +250,13 @@ const Home = ({navigation}) => {
         <Image
           style={styles.cloudImage}
           source={
-            weatherCondition.main == 'Clear'
+            weatherCondition?.main == 'Clear'
               ? clearSky
-              : fewClouds || weatherCondition.main == 'Rain'
-              ? rain
-              : snow || weatherCondition.main == 'Thunderstorm'
+              : fewClouds || weatherCondition?.main == 'Haze'
+              ? haze
+              : snow || weatherCondition?.main == 'Thunderstorm'
               ? thunderStorm
-              : clearSky
+              : haze
           }
           resizeMode={'contain'}
         />
@@ -231,20 +264,26 @@ const Home = ({navigation}) => {
           <Cloud_Inner
             icon={wind}
             name={'Wind'}
-            des={Math.floor(weatherData.current.wind_speed) + ' ' + `${'km/h'}`}
+            des={
+              tempValues === 'KM'
+                ? weatherData?.current?.wind_speed?.toFixed(2) +
+                  ' ' +
+                  `${tempValues}`
+                : multiplyWithSpeed.toFixed(2) + ' ' + `${tempValues}`
+            }
           />
           <Cloud_Inner
             icon={
-              weatherCondition.main == 'Clear'
+              weatherCondition?.main == 'Clear'
                 ? clearSky
-                : fewClouds || weatherCondition.main == 'Rain'
-                ? rain
-                : snow || weatherCondition.main == 'Thunderstorm'
+                : fewClouds || weatherCondition?.main == 'Haze'
+                ? haze
+                : snow || weatherCondition?.main == 'Thunderstorm'
                 ? thunderStorm
-                : clearSky
+                : haze
             }
-            name={weatherCondition.description}
-            des={` ${weatherData.current.clouds}%`}
+            name={weatherCondition?.description}
+            des={` ${weatherData?.current?.clouds}%`}
           />
         </View>
       </View>
@@ -305,12 +344,16 @@ const Home = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={{marginTop: RF(20), paddingBottom: 100}}>
+      <View
+        style={{
+          marginTop: RF(20),
+          paddingBottom: 100,
+        }}>
         <FlatList
           data={
             selectedButton == 'Weekly'
-              ? weatherData.daily
-              : weatherData.hourly.slice(0, 23)
+              ? weatherData?.daily
+              : weatherData?.hourly?.slice(0, 23)
           }
           // data={weatherData.hourly}
           renderItem={renderItem}

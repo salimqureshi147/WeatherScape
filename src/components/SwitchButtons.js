@@ -5,11 +5,18 @@ import CustomText from './CustomText';
 import {RF} from '../shared/theme/Responsive';
 import {temp} from '../assets';
 
-const SwitchButtons = ({icon, title, toggle1, toggle2, deg}) => {
+const SwitchButtons = ({
+  icon,
+  title,
+  toggle1,
+  toggle2,
+  deg,
+  onOptionChange,
+}) => {
   const [selectedOption, setSelectedOption] = useState(toggle1);
-
   const handleOptionChange = option => {
     setSelectedOption(option);
+    onOptionChange(option); // Call the function passed from Settings
   };
 
   return (

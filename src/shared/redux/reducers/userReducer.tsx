@@ -1,8 +1,10 @@
 import {createSlice} from '@reduxjs/toolkit';
+import {Primary} from '../../theme';
 
 const initialState: any = {
   weatherData: [],
   keyBoardOpen: false,
+  color: Primary,
 };
 
 export const userReducer = createSlice({
@@ -15,9 +17,12 @@ export const userReducer = createSlice({
     setKeyboardOpen: (state, action) => {
       state.keyBoardOpen = action.payload;
     },
+    setColor: (state, action) => {
+      state.color = action.payload;
+    },
   },
 });
 
-export const {setWeatherData, setKeyboardOpen} = userReducer.actions;
+export const {setWeatherData, setKeyboardOpen, setColor} = userReducer.actions;
 
 export default userReducer.reducer;

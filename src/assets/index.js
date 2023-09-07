@@ -31,9 +31,11 @@ const CloudySkyImage = require('../assets/appIcons/Clouds/CloudySkyImage.png');
 const SunnySkyImage = require('../assets/appIcons/Clouds/SunnySkyImage.png');
 const ThunderStromSkyImage = require('../assets/appIcons/Clouds/ThunderStromSkyImage.png');
 const SmokySkyImage = require('../assets/appIcons/Clouds/SmokySkyImage.png');
+const haze = require('../assets/appIcons/Clouds/haze.png');
 
 export {
   thunderStorm,
+  haze,
   SmokySkyImage,
   ThunderStromSkyImage,
   SunnySkyImage,
