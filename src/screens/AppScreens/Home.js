@@ -352,8 +352,10 @@ const Home = ({navigation}) => {
         <FlatList
           data={
             selectedButton == 'Weekly'
-              ? weatherData?.daily
-              : weatherData?.hourly?.slice(0, 23)
+              ? weatherData.daily
+              : selectedButton == 'Tomorrow'
+              ? weatherData.hourly.slice(24, 48)
+              : weatherData.hourly.slice(0, 24)
           }
           // data={weatherData.hourly}
           renderItem={renderItem}

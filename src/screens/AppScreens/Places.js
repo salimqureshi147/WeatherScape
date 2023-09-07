@@ -8,9 +8,10 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
+  Keyboard,
   KeyboardAvoidingView,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Wrapper from '../../components/myWrapper/Wrapper';
 import CustomHeader from '../../components/CustomHeader';
 import {placesData} from '../../flatlistData/Data';
@@ -18,13 +19,30 @@ import {RF} from '../../shared/theme/Responsive';
 import {find, map} from '../../assets';
 import {inputBack} from '../../shared/theme';
 import CustomText from '../../components/CustomText';
+import {setKeyboardOpen, store} from '../../shared/redux';
+import {useSelector} from 'react-redux';
 
 const Places = ({navigation}) => {
   const [searchQuery, setSearchQuery] = React.useState('');
-
+  const {keyBoardOpen} = useSelector(state => state.root.user);
   const filteredData = placesData.filter(item =>
     item.place.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      store.dispatch(setKeyboardOpen(false));
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      store.dispatch(setKeyboardOpen(true));
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [keyBoardOpen]);
+
   const renderPlaces = ({item}) => {
     return (
       <ImageBackground
