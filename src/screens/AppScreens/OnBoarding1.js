@@ -10,28 +10,38 @@ import React, {useEffect, useState} from 'react';
 import {RF, SCREEN_HEIGHT, SCREEN_WIDTH} from '../../shared/theme/Responsive';
 import {arrow, onBorad1, onBorad2} from '../../assets';
 import CustomText from '../../components/CustomText';
-import {light_gray, Primary, Secondary} from '../../shared/theme';
+import {light_gray, Primary, Secondary, WHITE} from '../../shared/theme';
 import {useSelector} from 'react-redux';
+import {StackActions} from '@react-navigation/native';
+import {setShift, store} from '../../shared/redux';
 
 const OnBoarding1 = ({navigation}) => {
   const [color, setColor] = useState(Secondary);
   const [color2, setColor2] = useState(light_gray);
   const [change, setChange] = useState(false);
+
   const Toggle = () => {
+    store.dispatch(setShift(true));
     setChange(true);
     setColor('gray');
     setColor2(Secondary);
     if (change) {
-      navigation.navigate('MyTabs');
+      navigation.dispatch(StackActions.replace('MyTabs'));
     }
   };
   return (
     <ImageBackground
-      style={styles.Container}
+      style={[styles.Container, {paddingTop: change ? RF(60) : RF(20)}]}
       imageStyle={change ? null : styles.imageStyle}
       source={change ? onBorad2 : onBorad1}
       resizeMode={change ? 'cover' : 'contain'}>
       {change ? <View style={styles.fade_View} /> : null}
+      <StatusBar
+        backgroundColor={change ? 'transparent' : '#fff'}
+        barStyle={change ? 'light-content' : 'dark-content'}
+        translucent={change ? true : false}
+      />
+
       <View style={{width: '100%', alignItems: 'flex-end'}}>
         <TouchableOpacity onPress={Toggle}>
           <CustomText
@@ -94,6 +104,7 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     padding: RF(20),
+    backgroundColor: WHITE,
   },
   bottom_comp: {
     flexDirection: 'row',

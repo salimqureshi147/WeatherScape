@@ -13,12 +13,14 @@ import {Primary, statusBarClr} from '../shared/theme';
 import {RF} from '../shared/theme/Responsive';
 
 const CustomHeader = ({
+  bgColor,
   istop,
   head,
   title,
   Clr,
   navigateNotification,
   navigation,
+  noImage,
 }) => {
   return (
     <View
@@ -27,28 +29,26 @@ const CustomHeader = ({
         justifyContent: 'space-between',
         flexDirection: 'row',
         marginTop: istop ? 10 : 0,
-        height: RF(130),
+        backgroundColor: bgColor,
+        height: RF(80),
         padding: RF(10),
-        backgroundColor: statusBarClr,
         alignItems: 'center',
       }}>
-      <View style={{marginTop: RF(40)}}>
-        {head ? null : (
-          <CustomText title={'Welcome'} regular weight={'400'} size={RF(18)} />
-        )}
+      <View>
+        {head ? null : <CustomText title={'Welcome'} medium size={RF(18)} />}
         <CustomText
           title={title}
-          semiBold
-          weight={'400'}
+          medium
           color={Clr ? Clr : Primary}
           size={RF(18)}
         />
       </View>
-      <TouchableOpacity
-        style={{marginTop: RF(40)}}
-        onPress={() => navigation.navigate(navigateNotification)}>
-        <Image style={{height: RF(25), width: RF(25)}} source={notify} />
-      </TouchableOpacity>
+      {noImage ? null : (
+        <TouchableOpacity
+          onPress={() => navigation.navigate(navigateNotification)}>
+          <Image style={{height: RF(25), width: RF(25)}} source={notify} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

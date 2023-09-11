@@ -13,6 +13,7 @@ import {WHITE} from '../shared/theme';
 import {imageBack} from '../utils/styles';
 import {RF} from '../shared/theme/Responsive';
 import {back} from '../assets';
+import NavHeader from './NavHeader';
 
 const HeaderBacground = ({title, backImage, navigation}) => {
   return (
@@ -23,27 +24,14 @@ const HeaderBacground = ({title, backImage, navigation}) => {
         barStyle={'light-content'}
       />
       <ImageBackground style={imageBack} source={{uri: backImage}}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{
-            flexDirection: 'row',
-            marginTop: RF(60),
-            alignItems: 'center',
-            paddingLeft: RF(20),
-          }}>
-          <Image
-            style={{height: RF(12), width: RF(15), marginRight: 20}}
-            source={back}
-            resizeMode={'contain'}
-          />
-          <CustomText
+        <View style={{marginTop: RF(50)}}>
+          <NavHeader
             title={title}
-            weight={'500'}
-            size={18}
-            semiBold
-            color={WHITE}
+            bgnone
+            color={'#fff'}
+            navigation={navigation}
           />
-        </TouchableOpacity>
+        </View>
       </ImageBackground>
     </>
   );

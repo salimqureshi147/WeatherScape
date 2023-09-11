@@ -10,7 +10,6 @@ const App = () => {
     <Provider store={store}>
       <PersistGate persistor={persistor}>
         <NavigationContainer>
-          
           <Routes />
         </NavigationContainer>
       </PersistGate>

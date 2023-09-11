@@ -17,19 +17,20 @@ import CustomHeader from '../../components/CustomHeader';
 import {placesData} from '../../flatlistData/Data';
 import {RF} from '../../shared/theme/Responsive';
 import {find, map} from '../../assets';
-import {inputBack} from '../../shared/theme';
+import {inputBack, statusBarClr, WHITE} from '../../shared/theme';
 import CustomText from '../../components/CustomText';
 import {setKeyboardOpen, store} from '../../shared/redux';
 import {useSelector} from 'react-redux';
 
 const Places = ({navigation}) => {
-  const {speed, tempValues} = useSelector(state => state.root.temp);
+  const {degreeValue} = useSelector(state => state.root.temp);
+
   const [searchQuery, setSearchQuery] = React.useState('');
-  const {keyBoardOpen} = useSelector(state => state.root.user);
+  const {keyBoardOpen, locationData} = useSelector(state => state.root.user);
   const filteredData = placesData.filter(item =>
     item.place.toLowerCase().includes(searchQuery.toLowerCase()),
   );
-
+  console.log(degreeValue, 'degree');
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
       store.dispatch(setKeyboardOpen(false));
@@ -50,28 +51,28 @@ const Places = ({navigation}) => {
         style={{height: RF(150), width: '100%', marginTop: RF(10)}}
         imageStyle={{borderRadius: RF(20)}}
         source={{uri: item.imge}}>
-        <View style={styles.itemListing}>
-          <Image style={styles.icon} resizeMode={'contain'} source={map} />
-          <CustomText
-            title={item.place}
-            regular
-            color={'#fff'}
-            weight={'500'}
-            size={RF(18)}
-          />
-          <CustomText
-            title={item.deg}
+        {/* <CustomText
+            title={locationData?.current?.temp}
             mLeft={10}
             regular
             color={'#fff'}
             weight={'700'}
             size={RF(24)}
-          />
-        </View>
+          /> */}
         <TouchableOpacity
           style={styles.fadeView}
-          onPress={() => navigation.navigate('PlacesDetail', {items: item})}
-        />
+          onPress={() => navigation.navigate('PlacesDetail', {items: item})}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image style={styles.icon} resizeMode={'contain'} source={map} />
+            <CustomText
+              title={item.place}
+              regular
+              color={'#fff'}
+              weight={'500'}
+              size={RF(18)}
+            />
+          </View>
+        </TouchableOpacity>
       </ImageBackground>
     );
   };
@@ -79,8 +80,9 @@ const Places = ({navigation}) => {
     <Wrapper
       padZero
       noPadding
+      bgClr={statusBarClr}
       // statusBarBagColor={'rgb(242,239,244)'}
-      translucent>
+    >
       <CustomHeader
         Clr={'#000'}
         title={'Places'}
@@ -89,7 +91,7 @@ const Places = ({navigation}) => {
         navigateNotification={'Notification'}
         navigation={navigation}
       />
-      <View style={{padding: RF(10)}}>
+      <View style={{backgroundColor: WHITE, padding: RF(10)}}>
         <View style={styles.input_Container}>
           <TextInput
             style={{
@@ -138,11 +140,11 @@ const styles = StyleSheet.create({
   },
   icons: {height: RF(20), width: RF(20), position: 'absolute', left: RF(10)},
   fadeView: {
-    position: 'absolute',
     backgroundColor: 'rgba(0,0,0,0.4)',
     height: '100%',
+    justifyContent: 'center',
+    paddingLeft: RF(20),
     width: '100%',
-    zIndex: 100,
     borderRadius: RF(20),
   },
   itemListing: {

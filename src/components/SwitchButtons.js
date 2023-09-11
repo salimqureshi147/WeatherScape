@@ -4,6 +4,7 @@ import {Primary} from '../shared/theme';
 import CustomText from './CustomText';
 import {RF} from '../shared/theme/Responsive';
 import {temp} from '../assets';
+import {useSelector} from 'react-redux';
 
 const SwitchButtons = ({
   icon,
@@ -14,6 +15,7 @@ const SwitchButtons = ({
   onOptionChange,
 }) => {
   const [selectedOption, setSelectedOption] = useState(toggle1);
+
   const handleOptionChange = option => {
     setSelectedOption(option);
     onOptionChange(option); // Call the function passed from Settings

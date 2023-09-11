@@ -4,16 +4,20 @@ import {splash_bac, WHITE} from '../shared/theme';
 import {RF} from '../shared/theme/Responsive';
 import {splash_Frame} from '../assets';
 import CustomText from '../components/CustomText';
+import {useSelector} from 'react-redux';
 
 const Splash = ({navigation}) => {
+  const {shift} = useSelector(state => state.root.user);
   useEffect(() => {
     setTimeout(async () => {
-      navigation.navigate('OnBoarding1');
+      shift === true
+        ? navigation.replace('MyTabs')
+        : navigation.navigate('OnBoarding1');
     }, 3000);
   }, []);
   return (
     <View style={styles.Container}>
-      <StatusBar backgroundColor={splash_bac} />
+      {/* <StatusBar backgroundColor={splash_bac} /> */}
       <Image style={{height: RF(210), width: RF(210)}} source={splash_Frame} />
       <View style={styles.powered}>
         <CustomText

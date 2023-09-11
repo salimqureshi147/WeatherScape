@@ -5,34 +5,33 @@ import CustomText from './CustomText';
 import {RF} from '../shared/theme/Responsive';
 import {Black} from '../shared/theme';
 
-const NavHeader = ({navigation, title}) => {
+const NavHeader = ({navigation, title, bgnone, color}) => {
   return (
     <View
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        height: RF(130),
-        backgroundColor: 'rgb(242,239,244)',
-        padding: RF(20),
+        height: RF(80),
+        backgroundColor: bgnone ? 'transparent' : 'rgb(242,239,244)',
+        paddingLeft: RF(10),
       }}>
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginTop: RF(40),
         }}>
         <Image
           source={back}
           style={{
-            tintColor: Black,
+            tintColor: bgnone ? '#fff' : Black,
             height: RF(20),
             width: RF(18),
             marginRight: RF(10),
           }}
           resizeMode={'contain'}
         />
-        <CustomText title={title} size={RF(18)} weight={'500'} medium />
+        <CustomText title={title} color={color} size={RF(18)} medium />
       </TouchableOpacity>
     </View>
   );

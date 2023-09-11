@@ -5,31 +5,41 @@ import Wrapper from '../../components/myWrapper/Wrapper';
 import NavHeader from '../../components/NavHeader';
 import SwitchButtons from '../../components/SwitchButtons';
 import {RF} from '../../shared/theme/Responsive';
-import {store} from '../../shared/redux';
+import {setColor, setColor2, store} from '../../shared/redux';
 import {
   setTempValues,
   setSpeed,
+  setHours,
 } from '../../shared/redux/reducers/settingsTempReducer';
 import {notify, temp, timming, windSpeed} from '../../assets';
+import {Primary} from '../../shared/theme';
 
 const Settings = ({navigation}) => {
   const {speed, tempValues} = useSelector(state => state.root.temp);
   // console.log(speed, 'myspeed');
   const handleOptionChange = (selectedOption, action) => {
     if (action === 'speed') {
-      store.dispatch(setSpeed(selectedOption));
-    } else if (action === 'temp') {
-      store.dispatch(setTempValues(selectedOption));
+      if (selectedOption === 'KM') {
+        store.dispatch(setSpeed(selectedOption));
+      } else if (selectedOption === 'Mph') {
+        store.dispatch(setSpeed(selectedOption));
+      }
     } else if (action === 'temp') {
       if (selectedOption === 'C') {
-        store.dispatch(setTempValues('C'));
+        store.dispatch(setTempValues(selectedOption));
       } else if (selectedOption === 'F') {
-        store.dispatch(setTempValues('F'));
+        store.dispatch(setTempValues(selectedOption));
+      }
+    } else if (action === 'timing') {
+      if (selectedOption === '12hr') {
+        store.dispatch(setHours(selectedOption));
+      } else if (selectedOption === '24hr') {
+        store.dispatch(setHours(selectedOption));
       }
     }
   };
   return (
-    <Wrapper padZero noPadding translucent>
+    <Wrapper padZero noPadding>
       <NavHeader navigation={navigation} title={'Settings'} />
       <View style={{marginTop: RF(20), padding: RF(10)}}>
         {[
@@ -50,8 +60,8 @@ const Settings = ({navigation}) => {
           {
             icon: timming,
             title: 'Timing Hours',
-            toggle1: '24hr',
-            toggle2: '12hr',
+            toggle1: '12hr',
+            toggle2: '24hr',
             action: 'timing',
           },
           {

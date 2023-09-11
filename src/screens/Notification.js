@@ -2,7 +2,12 @@ import {StyleSheet, Text, View, Image, TextInput} from 'react-native';
 import React from 'react';
 import Wrapper from '../components/myWrapper/Wrapper';
 import NavHeader from '../components/NavHeader';
-import {icon_gray, inputBack, SecondaryYellow} from '../shared/theme';
+import {
+  icon_gray,
+  inputBack,
+  SecondaryYellow,
+  statusBarClr,
+} from '../shared/theme';
 import {RF, SCREEN_HEIGHT} from '../shared/theme/Responsive';
 import {find, notifyIcon} from '../assets';
 import CustomText from '../components/CustomText';
@@ -59,9 +64,8 @@ const Notification = ({navigation}) => {
       bgClr={'rgb(242,239,244)'}
       padZero
       noPadding
-      statusBarBagColor={'transparent'}
-      translucent>
-      <NavHeader title={'Notification'} navigation={navigation} />
+      statusBarBagColor={statusBarClr}>
+      <NavHeader navigation={navigation} title={'Notification'} />
       {/* <RenderNotification />
       <RenderNotification />
       <RenderNotification />
@@ -69,7 +73,7 @@ const Notification = ({navigation}) => {
 
       <View
         style={{
-          height: SCREEN_HEIGHT / 1.2,
+          height: SCREEN_HEIGHT / 1.1,
           width: '100%',
           backgroundColor: '#fff',
           alignItems: 'center',

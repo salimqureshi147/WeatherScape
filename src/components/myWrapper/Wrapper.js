@@ -33,7 +33,6 @@ const Wrapper = ({
           paddingHorizontal: padZero ? 0 : RF(10),
           paddingBottom: paddingBottom ? paddingBottom : 20,
           padding: noPadding ? 0 : RF(20),
-          paddingTop: paddingTop ? paddingTop : RF(20),
         },
       ]}
       scrollEnabled={scrollfalse ? false : true}>

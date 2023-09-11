@@ -9,9 +9,8 @@ export const roundCelsius = temp => {
 };
 
 export const moment12Hour = dt => {
-  return Moment.unix(dt).format('h:mma');
+  return Moment.unix(dt).format('HHa');
 };
-
 export const momentHourOnly = dt => {
   return Moment.unix(dt).format('ha');
 };

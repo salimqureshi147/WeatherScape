@@ -16,27 +16,28 @@ import {Black, Primary, statusBarClr, WHITE} from '../../shared/theme';
 import {NewsData} from '../../flatlistData/Data';
 import {arrow} from '../../assets';
 import axios from 'axios';
+import CustomHeader from '../../components/CustomHeader';
 
 const News = ({navigation}) => {
-  const Axois = () => {
-    const city = 'New York'; // Replace with the city you want weather data for
+  // const Axois = () => {
+  //   const city = 'New York'; // Replace with the city you want weather data for
 
-    axios
-      .get(
-        ` https://api.thenewsapi.com/v1/news/all?api_token=Pe2537uBtuy8RkBhmCO1GhLWmSjS9yePpy3ZdSvV&search=usd`,
-      )
-      .then(response => {
-        // Handle the weather data in the response
-        console.log(response.data);
-      })
-      .catch(error => {
-        // Handle errors
-        console.error(error);
-      });
-  };
-  useEffect(() => {
-    Axois();
-  }, []);
+  //   axios
+  //     .get(
+  //       ` https://api.thenewsapi.com/v1/news/all?api_token=Pe2537uBtuy8RkBhmCO1GhLWmSjS9yePpy3ZdSvV&search=usd`,
+  //     )
+  //     .then(response => {
+  //       // Handle the weather data in the response
+  //       console.log(response.data);
+  //     })
+  //     .catch(error => {
+  //       // Handle errors
+  //       console.error(error);
+  //     });
+  // };
+  // useEffect(() => {
+  //   Axois();
+  // }, []);
   const renderNews = ({item, index}) => {
     return (
       <View style={{marginVertical: RF(10)}}>
@@ -81,9 +82,16 @@ const News = ({navigation}) => {
     );
   };
   return (
-    <Wrapper paddingTop={RF(50)} bgClr={WHITE}>
-      <CustomText title={'News Blog'} semiBold size={RF(18)} margin={RF(10)} />
-      <View style={{paddingBottom: 100}}>
+    <Wrapper noPadding padZero bgClr={WHITE}>
+      <CustomHeader
+        bgColor={statusBarClr}
+        Clr={'#000'}
+        title={'News Blog'}
+        head
+        noImage
+        size={RF(18)}
+      />
+      <View style={{paddingBottom: 100, padding: RF(10)}}>
         <FlatList
           data={NewsData}
           renderItem={renderNews}

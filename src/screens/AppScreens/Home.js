@@ -7,13 +7,18 @@ import {
   FlatList,
   PermissionsAndroid,
   ActivityIndicator,
+  ToastAndroid,
+  Keyboard,
   ImageBackground,
   ScrollView,
+  StatusBar,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Wrapper from '../../components/myWrapper/Wrapper';
 import CustomHeader from '../../components/CustomHeader';
 import CustomText from '../../components/CustomText';
+import NetInfo from '@react-native-community/netinfo';
+
 import {
   Black,
   icon_gray,
@@ -44,14 +49,30 @@ import Geolocation from 'react-native-geolocation-service';
 import {setKeyboardOpen, setWeatherData, store} from '../../shared/redux';
 import {useSelector} from 'react-redux';
 import moment from 'moment-timezone';
-import {momentHourOnly} from '../../utils/functions';
+import {moment12Hour, momentHourOnly} from '../../utils/functions';
 const Home = ({navigation}) => {
-  const {speed, degreeValue} = useSelector(state => state.root.temp);
+  const {speed, tempValues, hours} = useSelector(state => state.root.temp);
   const {weatherData, keyBoardOpen} = useSelector(state => state.root.user);
   const [latitude, setLatitude] = useState('31.5204');
   const [longitude, setLongitude] = useState('74.3587');
   const [loading, setLoading] = useState(true);
-  console.log(speed, 'values');
+  const [selectedButton, setSelectedButton] = useState('Today');
+  const weatherCondition = weatherData?.current?.weather[0];
+  const [isConnected, setIsConnected] = useState(true);
+  const [error, setError] = useState(null);
+  const degreeConvert = weatherData?.current?.temp;
+  const multiplyWithDegree = (degreeConvert * 9) / 5 + 32;
+  const speedConvert = weatherData?.current?.wind_speed;
+  const multiplyWithSpeed = 0.621371 * speedConvert;
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
   useEffect(() => {
     fetchDataFromApi();
     requestLocationPermission();
@@ -67,7 +88,7 @@ const Home = ({navigation}) => {
           position => {
             setLatitude(position.coords.latitude);
             setLongitude(position.coords.longitude);
-            console.log('Current Location Success', latitude);
+            // console.log('Current Location Success', latitude);
           },
           error => {
             console.error('Error getting location:', error);
@@ -81,7 +102,6 @@ const Home = ({navigation}) => {
       console.error('Error requesting location permission:', error);
     }
   };
-
   // const openWeatherKey = `5499633cb715f069b502abf87c127f2e`;
 
   const fetchDataFromApi = async () => {
@@ -100,18 +120,28 @@ const Home = ({navigation}) => {
           const data = await response.json();
           store.dispatch(setWeatherData(data));
         } else {
-          console.error('API error:', response.status);
+          ToastAndroid.showWithGravityAndOffset(
+            'Please Check your connection and try again',
+            ToastAndroid.LONG,
+            ToastAndroid.CENTER,
+            25,
+            50,
+          );
         }
       } catch (error) {
-        console.error('Fetch error:', error);
+        ToastAndroid.showWithGravityAndOffset(
+          'Please Check your connection and try again',
+          ToastAndroid.LONG,
+          ToastAndroid.CENTER,
+          25,
+          50,
+        );
       } finally {
         setLoading(false);
       }
     }
-    weatherCondition;
   };
-  const weatherCondition = weatherData?.current?.weather[0];
-  const [selectedButton, setSelectedButton] = useState('Today');
+
   const Cloud_Inner = ({icon, name, des, mLeft, numLines}) => {
     return (
       <View
@@ -121,11 +151,15 @@ const Home = ({navigation}) => {
         }}>
         <View style={[styles.cloudAssets]}>
           <Image
-            style={{height: RF(15), width: RF(16), marginRight: RF(10)}}
+            style={{
+              height: RF(15),
+              width: RF(15),
+              marginRight: RF(10),
+            }}
             source={icon}
             resizeMode={'contain'}
           />
-          <CustomText title={name} regular size={RF(14)} weight={'500'} />
+          <CustomText title={name} regular size={RF(12)} weight={'500'} />
         </View>
         <View style={[styles.des_Cont]}>
           <CustomText
@@ -139,7 +173,15 @@ const Home = ({navigation}) => {
       </View>
     );
   };
+  const formatTemperature = (temperature, unit) => {
+    return unit === 'C'
+      ? `${Math.floor(temperature)}°C`
+      : `${Math.floor((temperature * 9) / 5 + 32)}°F`;
+  };
   const renderItem = ({item}) => {
+    const temperatureToday = formatTemperature(item.temp, tempValues);
+    const temperatureTomorrow = formatTemperature(item.temp, tempValues);
+    const temperatureWeekly = formatTemperature(item.temp.max, tempValues);
     return (
       <View
         style={{
@@ -152,7 +194,9 @@ const Home = ({navigation}) => {
           title={
             selectedButton == 'Weekly'
               ? moment(item.dt * 1000).format('ddd')
-              : momentHourOnly(item.dt)
+              : momentHourOnly(item.dt) && hours === '12hr'
+              ? momentHourOnly(item.dt)
+              : moment12Hour(item.dt)
           }
           regular
           weight={'500'}
@@ -167,9 +211,11 @@ const Home = ({navigation}) => {
         <View style={{flexDirection: 'row'}}>
           <CustomText
             title={
-              selectedButton == 'Weekly'
-                ? Math.floor(item.temp.max)
-                : Math.floor(item.temp)
+              selectedButton === 'Today'
+                ? temperatureToday
+                : selectedButton === 'Tomorrow'
+                ? temperatureTomorrow
+                : temperatureWeekly
             }
             regular
             weight={'500'}
@@ -187,12 +233,13 @@ const Home = ({navigation}) => {
       </View>
     );
   };
+
   if (loading) {
     return (
       <View
         style={{
           flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.2)',
+          backgroundColor: 'transparent',
           alignItems: 'center',
           justifyContent: 'center',
         }}>
@@ -200,11 +247,17 @@ const Home = ({navigation}) => {
       </View>
     );
   }
-  const speedConvert = weatherData?.current?.wind_speed;
-  const multiplyWithSpeed = 0.621371 * speedConvert;
-  console.log(degreeValue, 'mph answer');
+  if (!isConnected || error) {
+    // Check for error state as well
+    setLoading(true);
+    return <View style={styles.noInternetContainer}></View>;
+  }
   return (
-    <Wrapper bgClr={statusBarClr}>
+    <Wrapper
+      statusBarBagColor={'rgba(0,0,0,0.08)'}
+      padZero
+      noPadding
+      bgClr={'rgba(0,0,0,0.05)'}>
       {/* <ImageBackground
         style={{flex: 1, padding: RF(10)}}
         source={
@@ -214,6 +267,7 @@ const Home = ({navigation}) => {
         }
         resizeMode={'cover'}> */}
       <CustomHeader
+        bgColor={'transparent'}
         title={'John Duo!'}
         navigateNotification={'Notification'}
         navigation={navigation}
@@ -227,7 +281,11 @@ const Home = ({navigation}) => {
         }}>
         <View style={{flexDirection: 'row'}}>
           <CustomText
-            title={Math.floor(weatherData?.current?.temp)}
+            title={
+              tempValues === 'C'
+                ? Math.floor(weatherData?.current?.temp) + ' ' + `${tempValues}`
+                : Math.floor(multiplyWithDegree) + ' ' + `${tempValues}`
+            }
             size={36}
             weight={'600'}
             semiBold
@@ -251,158 +309,174 @@ const Home = ({navigation}) => {
         </View>
       </View>
 
-      <View style={styles.cloudCard}>
-        <Image
-          style={styles.cloudImage}
-          source={
-            weatherCondition?.main == 'Clear'
-              ? clearSky
-              : fewClouds || weatherCondition?.main == 'Haze'
-              ? haze
-              : snow || weatherCondition?.main == 'Thunderstorm'
-              ? thunderStorm
-              : haze
-          }
-          resizeMode={'contain'}
-        />
-        <View style={[styles.Container]}>
-          <Cloud_Inner
-            icon={wind}
-            name={'Wind'}
-            des={
-              speed === 'KM'
-                ? weatherData?.current?.wind_speed?.toFixed(2) +
-                  ' ' +
-                  `${speed}`
-                : multiplyWithSpeed.toFixed(2) + ' ' + `${speed}`
-            }
-          />
-          <Cloud_Inner
-            icon={
+      <View style={{width: '100%', padding: RF(10)}}>
+        <View style={styles.cloudCard}>
+          <Image
+            style={styles.cloudImage}
+            source={
               weatherCondition?.main == 'Clear'
                 ? clearSky
-                : fewClouds || weatherCondition?.main == 'Haze'
+                : weatherCondition?.main == 'Clouds'
+                ? scatteredClouds
+                : weatherCondition?.main == 'Haze'
                 ? haze
-                : snow || weatherCondition?.main == 'Thunderstorm'
+                : weatherCondition?.main == 'Thunderstorm'
                 ? thunderStorm
-                : haze
+                : weatherCondition?.main == 'Snow'
+                ? snow
+                : weatherCondition?.main == 'Rain'
+                ? rain
+                : fewClouds
             }
-            name={weatherCondition?.description}
-            des={` ${weatherData?.current?.clouds}%`}
+            resizeMode={'contain'}
           />
+          <View style={[styles.Container]}>
+            <Cloud_Inner
+              icon={wind}
+              name={'Wind'}
+              des={
+                speed === 'KM'
+                  ? weatherData?.current?.wind_speed?.toFixed(2) +
+                    ' ' +
+                    `${speed}`
+                  : multiplyWithSpeed.toFixed(2) + ' ' + `${speed}`
+              }
+            />
+            <Cloud_Inner
+              icon={
+                weatherCondition?.main == 'Clear'
+                  ? clearSky
+                  : weatherCondition?.main == 'Clouds'
+                  ? scatteredClouds
+                  : weatherCondition?.main == 'Haze'
+                  ? haze
+                  : weatherCondition?.main == 'Thunderstorm'
+                  ? thunderStorm
+                  : weatherCondition?.main == 'Snow'
+                  ? snow
+                  : weatherCondition?.main == 'Rain'
+                  ? rain
+                  : fewClouds
+              }
+              name={weatherCondition?.description}
+              des={` ${weatherData?.current?.clouds}%`}
+            />
+          </View>
         </View>
-      </View>
 
-      <View style={{width: '100%', flexDirection: 'row', marginTop: RF(30)}}>
-        <View
-          style={[
-            styles.days_pattern,
-            {
-              borderBottomColor:
-                selectedButton == 'Today' ? Secondary : icon_gray,
-            },
-          ]}>
-          <TouchableOpacity onPress={() => setSelectedButton('Today')}>
-            <CustomText
-              title={'Today'}
-              regular
-              weight={'600'}
-              size={RF(14)}
-              color={selectedButton == 'Today' ? Secondary : Black}
-            />
-          </TouchableOpacity>
+        <View style={{width: '100%', flexDirection: 'row', marginTop: RF(30)}}>
+          <View
+            style={[
+              styles.days_pattern,
+              {
+                borderBottomColor:
+                  selectedButton == 'Today' ? Secondary : icon_gray,
+              },
+            ]}>
+            <TouchableOpacity onPress={() => setSelectedButton('Today')}>
+              <CustomText
+                title={'Today'}
+                regular
+                weight={'600'}
+                size={RF(14)}
+                color={selectedButton == 'Today' ? Secondary : Black}
+              />
+            </TouchableOpacity>
+          </View>
+          <View
+            style={[
+              styles.days_pattern,
+              {
+                borderBottomColor:
+                  selectedButton == 'Tomorrow' ? Secondary : icon_gray,
+              },
+            ]}>
+            <TouchableOpacity onPress={() => setSelectedButton('Tomorrow')}>
+              <CustomText
+                title={'Tomorrow'}
+                regular
+                weight={'600'}
+                size={RF(14)}
+                color={selectedButton == 'Tomorrow' ? Secondary : Black}
+              />
+            </TouchableOpacity>
+          </View>
+          <View
+            style={[
+              styles.days_pattern,
+              {
+                borderBottomColor:
+                  selectedButton == 'Weekly' ? Secondary : icon_gray,
+              },
+            ]}>
+            <TouchableOpacity onPress={() => setSelectedButton('Weekly')}>
+              <CustomText
+                title={'Weekly'}
+                regular
+                weight={'600'}
+                size={RF(14)}
+                color={selectedButton == 'Weekly' ? Secondary : Black}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-        <View
-          style={[
-            styles.days_pattern,
-            {
-              borderBottomColor:
-                selectedButton == 'Tomorrow' ? Secondary : icon_gray,
-            },
-          ]}>
-          <TouchableOpacity onPress={() => setSelectedButton('Tomorrow')}>
-            <CustomText
-              title={'Tomorrow'}
-              regular
-              weight={'600'}
-              size={RF(14)}
-              color={selectedButton == 'Tomorrow' ? Secondary : Black}
-            />
-          </TouchableOpacity>
-        </View>
-        <View
-          style={[
-            styles.days_pattern,
-            {
-              borderBottomColor:
-                selectedButton == 'Weekly' ? Secondary : icon_gray,
-            },
-          ]}>
-          <TouchableOpacity onPress={() => setSelectedButton('Weekly')}>
-            <CustomText
-              title={'Weekly'}
-              regular
-              weight={'600'}
-              size={RF(14)}
-              color={selectedButton == 'Weekly' ? Secondary : Black}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View
-        style={{
-          marginTop: RF(20),
-          paddingBottom: 100,
-        }}>
-        <FlatList
-          data={
-            selectedButton == 'Weekly'
-              ? weatherData.daily
-              : selectedButton == 'Tomorrow'
-              ? weatherData?.hourly?.slice(24, 48)
-              : weatherData?.hourly?.slice(0, 24)
-          }
-          // data={weatherData.hourly}
-          renderItem={renderItem}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-        />
         <View
           style={{
-            flexDirection: 'row',
-            marginTop: RF(30),
-            alignSelf: 'center',
+            marginTop: RF(20),
+            paddingBottom: 100,
+            // backgroundColor: 'rgba(0,0,0,0.1)',
           }}>
-          <View
-            style={[
-              styles.rect,
-              {
-                backgroundColor:
-                  selectedButton == 'Today' ? Primary : Secondary,
-                width: selectedButton == 'Today' ? RF(11) : RF(5),
-              },
-            ]}
+          <FlatList
+            data={
+              selectedButton == 'Weekly'
+                ? weatherData.daily
+                : selectedButton == 'Tomorrow'
+                ? weatherData?.hourly?.slice(24, 48)
+                : weatherData?.hourly?.slice(0, 24)
+              // oment(weatherData?.hourly?.slice(0, 24) * 1000).format('HH:mm')
+            }
+            // data={weatherData.hourly}
+            renderItem={renderItem}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
           />
           <View
-            style={[
-              styles.rect,
-              {
-                backgroundColor:
-                  selectedButton == 'Tomorrow' ? Primary : Secondary,
-                width: selectedButton == 'Tomorrow' ? RF(11) : RF(5),
-              },
-            ]}
-          />
-          <View
-            style={[
-              styles.rect,
-              {
-                backgroundColor:
-                  selectedButton == 'Weekly' ? Primary : Secondary,
-                width: selectedButton == 'Weekly' ? RF(11) : RF(5),
-              },
-            ]}
-          />
+            style={{
+              flexDirection: 'row',
+              marginTop: RF(30),
+              alignSelf: 'center',
+            }}>
+            <View
+              style={[
+                styles.rect,
+                {
+                  backgroundColor:
+                    selectedButton == 'Today' ? Primary : Secondary,
+                  width: selectedButton == 'Today' ? RF(11) : RF(5),
+                },
+              ]}
+            />
+            <View
+              style={[
+                styles.rect,
+                {
+                  backgroundColor:
+                    selectedButton == 'Tomorrow' ? Primary : Secondary,
+                  width: selectedButton == 'Tomorrow' ? RF(11) : RF(5),
+                },
+              ]}
+            />
+            <View
+              style={[
+                styles.rect,
+                {
+                  backgroundColor:
+                    selectedButton == 'Weekly' ? Primary : Secondary,
+                  width: selectedButton == 'Weekly' ? RF(11) : RF(5),
+                },
+              ]}
+            />
+          </View>
         </View>
       </View>
       {/* </ImageBackground> */}
@@ -413,6 +487,11 @@ const Home = ({navigation}) => {
 export default Home;
 
 const styles = StyleSheet.create({
+  noInternetContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   cloudCard: {
     height: RF(170),
     marginTop: 50,
